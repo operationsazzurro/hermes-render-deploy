@@ -1,0 +1,24 @@
+# Add this block into ~/.hermes/config.yaml, under the existing mcp_servers
+# section (create the section if it doesn't exist yet).
+#
+# Then put these two lines into ~/.hermes/.env (NOT config.yaml - .env is
+# for secrets):
+#   SUPABASE_URL=https://rvqhzfxotyiphundbagm.supabase.co
+#   SUPABASE_SERVICE_ROLE_KEY=<your service_role key from Supabase Settings -> API>
+#
+# Get the service_role key from: Supabase Dashboard -> Project Settings ->
+# API -> "service_role" (marked secret, NOT the "anon"/"publishable" one).
+#
+# After editing, restart Hermes (or run /reload-mcp in a chat session) and
+# verify with: hermes tools list
+# You should see tools prefixed mcp_opscommandcenter_... e.g.
+# mcp_opscommandcenter_list_sites
+
+mcp_servers:
+  opscommandcenter:
+    command: "node"
+    args: ["/full/path/to/hermes-mcp-server/index.js"]
+    env:
+      SUPABASE_URL: "${SUPABASE_URL}"
+      SUPABASE_SERVICE_ROLE_KEY: "${SUPABASE_SERVICE_ROLE_KEY}"
+    timeout: 60
