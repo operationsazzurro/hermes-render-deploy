@@ -8,6 +8,15 @@ set -e
 mkdir -p /opt/data
 
 cat > /opt/data/config.yaml <<EOF
+
+# ============================================================
+# MAIN AI MODEL
+# ============================================================
+
+model:
+  default: "nvidia/llama-nemotron-rerank-vl-1b-v2:free"
+  provider: "openrouter"
+
 mcp_servers:
   opscommandcenter:
     command: "node"
