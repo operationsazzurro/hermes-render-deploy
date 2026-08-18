@@ -1,0 +1,35 @@
+# Render Blueprint - deploy with "New +" -> "Blueprint" in the Render
+# dashboard, pointing at the repo/folder containing this file, Dockerfile,
+# and render-entrypoint.sh.
+#
+# After deploying, set the "sync: false" secrets below in the Render
+# dashboard (Environment tab) - they are intentionally NOT written here so
+# they never end up committed to git.
+
+services:
+  - type: web
+    name: hermes-agent
+    env: docker
+    dockerfilePath: ./Dockerfile
+    plan: starter          # free tier sleeps + wipes disk on every wake;
+                            # starter ($7/mo) stays warm and is far more
+                            # reliable for an always-on agent + MCP tools
+    healthCheckPath: /health
+    envVars:
+      - key: API_SERVER_ENABLED
+        value: "true"
+      - key: API_SERVER_HOST
+        value: "0.0.0.0"
+      - key: API_SERVER_PORT
+        value: "8642"
+      - key: API_SERVER_KEY
+        sync: false        # set a long random value, e.g. output of:
+                            # openssl rand -hex 32
+      - key: SUPABASE_URL
+        sync: false
+      - key: SUPABASE_SERVICE_ROLE_KEY
+        sync: false        # the SERVICE ROLE key, never the anon key
+      - key: OPENROUTER_API_KEY
+        sync: false        # or whichever model provider you picked with
+                            # `hermes model` - variable name depends on
+                            # the provider, check `hermes doctor` output
