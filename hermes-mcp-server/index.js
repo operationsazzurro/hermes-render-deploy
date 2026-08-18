@@ -48,13 +48,25 @@ const sb = createClient(SUPABASE_URL, SUPABASE_KEY, {
 
 const tools = [
   {
-    name: "list_sites",
+    name: "count_sites",
     description:
-      "List all sites, optionally filtered by a search term matching the site name or city. Returns site name, code, city, project, and manpower.",
+      "Get the EXACT total number of sites (optionally filtered by search term matching site name or city). Always use this tool for 'how many sites' type questions instead of counting rows from list_sites yourself - list_sites may be capped and manual counting from a long list is unreliable.",
     inputSchema: {
       type: "object",
       properties: {
         search: { type: "string", description: "Optional text to filter site name or city" },
+      },
+    },
+  },
+  {
+    name: "list_sites",
+    description:
+      "List all sites, optionally filtered by a search term matching the site name or city. Returns site name, code, city, project, and manpower. For a total count, use count_sites instead - this tool is for browsing/listing, not counting.",
+    inputSchema: {
+      type: "object",
+      properties: {
+        search: { type: "string", description: "Optional text to filter site name or city" },
+        limit: { type: "number", description: "Max rows to return, default 500, max 2000" },
       },
     },
   },
@@ -155,10 +167,19 @@ async function findSiteIdByName(name) {
 
 async function handleToolCall(name, args) {
   switch (name) {
+    case "count_sites": {
+      let q = sb.from("sites").select("*", { count: "exact", head: true });
+      if (args.search) q = q.or(`site_name.ilike.%${args.search}%,city.ilike.%${args.search}%`);
+      const { count, error } = await q;
+      if (error) throw new Error(error.message);
+      return { total_sites: count };
+    }
+
     case "list_sites": {
       let q = sb.from("sites").select("site_name, site_code, city, emirate_or_state, manpower_required, projects(project_name)");
       if (args.search) q = q.or(`site_name.ilike.%${args.search}%,city.ilike.%${args.search}%`);
-      const { data, error } = await q.limit(100);
+      const limit = Math.min(args.limit || 500, 2000);
+      const { data, error } = await q.limit(limit);
       if (error) throw new Error(error.message);
       return data;
     }
