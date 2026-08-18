@@ -14,7 +14,7 @@ cat > /opt/data/config.yaml <<EOF
 # ============================================================
 
 model:
-  default: "nvidia/llama-nemotron-rerank-vl-1b-v2:free"
+  default: "nvidia/nemotron-3-ultra-550b-a55b:free"
   provider: "openrouter"
 
 mcp_servers:
@@ -26,6 +26,18 @@ mcp_servers:
       SUPABASE_SERVICE_ROLE_KEY: "${SUPABASE_SERVICE_ROLE_KEY}"
     timeout: 60
 EOF
+
+echo "===== Hermes config ====="
+cat /opt/data/config.yaml
+echo "========================="
+
+echo "===== Hermes version ====="
+hermes --version || true
+echo "=========================="
+
+echo "===== Hermes config check ====="
+hermes config check || true
+echo "================================"
 
 # API_SERVER_ENABLED / API_SERVER_KEY / API_SERVER_HOST / API_SERVER_PORT
 # and the model provider key are read directly from the environment -
