@@ -11,9 +11,18 @@ services:
     name: hermes-agent
     env: docker
     dockerfilePath: ./Dockerfile
-    plan: starter          # free tier sleeps + wipes disk on every wake;
-                            # starter ($7/mo) stays warm and is far more
-                            # reliable for an always-on agent + MCP tools
+    plan: free            # NOTE: free tier sleeps after 15 min idle and
+                            # wipes its disk on every sleep/wake cycle -
+                            # config regenerates fine (via the entrypoint
+                            # script) but in-memory session context is
+                            # lost each time. Pinging /health from
+                            # UptimeRobot every 5 min should keep it warm
+                            # enough in practice to avoid most of that.
+                            # Also note free tier has a monthly runtime
+                            # hour cap - check your Render account's
+                            # current limit if you run other free
+                            # services too. Switch to "starter" later if
+                            # you see it getting killed/reset under load.
     healthCheckPath: /health
     envVars:
       - key: API_SERVER_ENABLED
